@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+{% block title %}Admin Panel – EcoSnap{% endblock %}
+
+{% block content %}
+<section class="page-hero page-hero--sm">
+  <div class="page-hero-overlay"></div>
+  <div class="container page-hero-content">
+    <h1>Admin Panel</h1>
+    <p>Manage and resolve all waste complaints</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container container--wide">
+
+    <!-- ── Filter Bar ── -->
+    <div class="admin-toolbar">
+      <div class="filter-tabs" id="filterTabs">
+        <button class="ftab active" data-status="">All</button>
+        <button class="ftab" data-status="pending">⏳ Pending</button>
+        <button class="ftab" data-status="in_progress">🔧 In Progress</button>
+        <button class="ftab" data-status="resolved">✅ Resolved</button>
+      </div>
+      <div class="admin-search">
+        <i class="fa fa-search"></i>
+        <input type="text" id="adminSearch" placeholder="Search by location or user…"/>
+      </div>
+    </div>
+
+    <!-- ── Toast notification ── -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ── Table ── -->
+    <div class="admin-table-wrap">
+      <table class="admin-table" id="adminTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Reporter</th>
+            <th>Location</th>
+            <th>Description</th>
+            <th>Photo</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+        <tbody id="adminTbody">
+          {% for c in complaints %}
+          <tr data-status="{{ c.status }}" data-id="{{ c.id }}"
+              data-search="{{ c.location|lower }} {{ c.user_name|lower }} {{ c.user_email|lower }}">
+            <td class="td-id">#{{ c.id }}</td>
+            <td>
+              <div class="td-user">
+                <div class="user-avatar">{{ c.user_name[0].upper() }}</div>
+                <div>
+                  <div class="user-name">{{ c.user_name }}</div>
+                  <div class="user-email">{{ c.user_email }}</div>
+                </div>
+              </div>
+            </td>
+            <td class="td-loc">
+  <i class="fa fa-map-marker-alt"></i> {{ c.location }}
+  {% if c.get('latitude') %}
+    <span class="gps-badge"><i class="fa fa-shield-alt"></i> GPS</span>
+  {% else %}
+    <span class="manual-badge"><i class="fa fa-keyboard"></i> Manual</span>
+  {% endif %}
+</td>
+            <td class="td-desc">{{ c.description[:80] }}{% if c.description|length > 80 %}…{% endif %}</td>
+            <td class="td-photo">
+              {% if c.image_url %}
+                <a href="{{ c.image_url }}" target="_blank" class="photo-thumb-link">
+                  <img src="{{ c.image_url }}" class="photo-thumb" alt="photo" loading="lazy"/>
+                </a>
+              {% else %}
+                <span class="no-photo">—</span>
+              {% endif %}
+            </td>
+            <td class="td-date">{{ c.created_at }}</td>
+            <td>
+              <span class="status-badge status-{{ c.status }}" id="badge-{{ c.id }}">
+                {% if c.status == 'pending' %}⏳ Pending
+                {% elif c.status == 'in_progress' %}🔧 In Progress
+                {% else %}✅ Resolved
+                {% endif %}
+              </span>
+            </td>
+           <td>
+  <select class="status-select" data-id="{{ c.id }}" onchange="updateStatus(this)">
+    <option value="pending"     {% if c.status == 'pending'     %}selected{% endif %}>Pending</option>
+    <option value="in_progress" {% if c.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+    <option value="resolved"    {% if c.status == 'resolved'    %}selected{% endif %}>Resolved</option>
+  </select>
+</td>
+<td>
+  <button class="btn-delete-admin" onclick="adminDelete({{ c.id }})">
+    <i class="fa fa-trash"></i>
+  </button>
+</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="8" class="empty-row">No complaints found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="admin-count">
+      Showing <span id="visibleCount">{{ complaints|length }}</span> of {{ complaints|length }} complaints
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // ── Status update via PUT API ──────────────
+  async function updateStatus(sel) {
+    const id     = sel.dataset.id;
+    const status = sel.value;
+    try {
+      const res = await fetch(`/update-status/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+      if (!res.ok) throw new Error('Failed');
+
+      // Update badge in row
+      const badge = document.getElementById(`badge-${id}`);
+      const labels = { pending: '⏳ Pending', in_progress: '🔧 In Progress', resolved: '✅ Resolved' };
+      badge.textContent = labels[status];
+      badge.className = `status-badge status-${status}`;
+
+      // Update row data-status for filter
+      sel.closest('tr').dataset.status = status;
+
+      showToast('✅ Status updated successfully!', 'success');
+    } catch (e) {
+      showToast('❌ Update failed. Please try again.', 'error');
+    }
+  }
+
+  // ── Filter tabs ───────────────────────────
+  document.getElementById('filterTabs').addEventListener('click', e => {
+    const btn = e.target.closest('.ftab');
+    if (!btn) return;
+    document.querySelectorAll('.ftab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filterTable(btn.dataset.status, document.getElementById('adminSearch').value);
+  });
+
+  // ── Search filter ─────────────────────────
+  document.getElementById('adminSearch').addEventListener('input', e => {
+    const activeTab = document.querySelector('.ftab.active').dataset.status;
+    filterTable(activeTab, e.target.value.toLowerCase());
+  });
+
+  function filterTable(status, search) {
+    const rows = document.querySelectorAll('#adminTbody tr[data-id]');
+    let visible = 0;
+    rows.forEach(row => {
+      const matchStatus = !status || row.dataset.status === status;
+      const matchSearch = !search || row.dataset.search.includes(search);
+      const show = matchStatus && matchSearch;
+      row.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    document.getElementById('visibleCount').textContent = visible;
+  }
+
+  // ── Toast helper ──────────────────────────
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className   = `toast toast-${type} toast-show`;
+    setTimeout(() => t.className = 'toast', 3000);
+  }
+  // ── Admin Delete ──────────────────────────
+async function adminDelete(id) {
+  if (!confirm('Are you sure you want to delete complaint #' + id + '? This cannot be undone.')) return;
+
+  try {
+    const res = await fetch(`/delete-complaint/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      const row = document.querySelector(`tr[data-id="${id}"]`);
+      if (row) row.remove();
+      showToast('✅ Complaint #' + id + ' deleted!', 'success');
+      // Update visible count
+      const visible = document.querySelectorAll('#adminTbody tr[data-id]').length;
+      document.getElementById('visibleCount').textContent = visible;
+    } else {
+      showToast('❌ Delete failed. Try again.', 'error');
+    }
+  } catch(e) {
+    showToast('❌ Something went wrong.', 'error');
+  }
+}
+</script>
+{% endblock %}

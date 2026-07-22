@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}EcoSnap{% endblock %}</title>
+
+  <!-- Google Fonts: Playfair Display + DM Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <link rel="stylesheet" href="/static/css/main.css"/>
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+<!-- ══════════════════ NAVBAR ══════════════════ -->
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a class="nav-brand" href="/">
+  <span class="brand-leaf">🌿</span>
+  <span class="brand-name">EcoSnap</span>
+</a>
+
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/" class="nav-link">Home</a></li>
+      <li><a href="/report" class="nav-link">Report</a></li>
+      {% if user and user.is_admin %}
+  <li><a href="/dashboard" class="nav-link">Dashboard</a></li>
+{% endif %}
+
+      {% if user %}
+        <li><a href="/my-complaints" class="nav-link">My Reports</a></li>
+        {% if user.is_admin %}
+          <li><a href="/admin" class="nav-link nav-admin">Admin Panel</a></li>
+        {% endif %}
+        <li>
+          <a href="/logout" class="nav-btn nav-btn-outline">
+            <i class="fa fa-sign-out-alt"></i> Logout
+          </a>
+        </li>
+        <li class="nav-user">Hi, {{ user.name.split()[0] }} 👋</li>
+      {% else %}
+        <li><a href="/login" class="nav-link">Login</a></li>
+        <li><a href="/register" class="nav-btn nav-btn-solid">Get Started</a></li>
+      {% endif %}
+    </ul>
+
+    <button class="hamburger" id="hamburger" aria-label="menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ══════════════════ MAIN CONTENT ══════════════════ -->
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+<!-- ══════════════════ FOOTER ══════════════════ -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="footer-logo">🌿 EcoSnap</div>
+      <p>Empowering communities to report and resolve waste issues for a cleaner, greener tomorrow.</p>
+      <div class="footer-socials">
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-linkedin"></i></a>
+        <a href="#"><i class="fab fa-facebook"></i></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/report">Report Waste</a></li>
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/register">Sign Up</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Our Mission</h4>
+      <ul>
+        <li><a href="#">Clean Cities</a></li>
+        <li><a href="#">Recycling Tips</a></li>
+        <li><a href="#">Eco Education</a></li>
+        <li><a href="#">Partner With Us</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <ul>
+        <li><i class="fa fa-envelope"></i> hello@ecosnap.com</li>
+        <li><i class="fa fa-phone"></i> +91 1234567890</li>
+        <li><i class="fa fa-map-marker-alt"></i> India </li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 EcoSnap. Built for a cleaner planet. 🌍</p>
+  </div>
+</footer>
+
+<script src="/static/js/main.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

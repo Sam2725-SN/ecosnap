@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Report Waste – EcoSnap{% endblock %}
+
+{% block content %}
+<section class="page-hero page-hero--sm">
+  <div class="page-hero-overlay"></div>
+  <div class="container page-hero-content">
+    <h1>Report a Waste Issue</h1>
+    <p>Help us keep your city clean. Fill in the details below.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container container--narrow">
+    {% if error %}
+      <div class="alert alert-error"><i class="fa fa-exclamation-circle"></i> {{ error }}</div>
+    {% endif %}
+
+    <div class="glass-card report-card">
+      <form action="/report-waste" method="POST" enctype="multipart/form-data" class="report-form" id="reportForm">
+
+        <div class="form-group">
+          <label><i class="fa fa-map-marker-alt"></i> Location / Address</label>
+          <input type="text" name="location" placeholder="e.g. 12 Green Street, Near City Park" required maxlength="255"/>
+        </div>
+
+        <div class="form-group">
+          <label><i class="fa fa-align-left"></i> Description</label>
+          <textarea name="description" rows="4" placeholder="Describe the waste issue in detail (minimum 10 characters)…" required minlength="10" maxlength="1000"></textarea>
+          <div class="char-count"><span id="charCount">0</span> / 1000</div>
+        </div>
+
+        <div class="form-group">
+<label><i class="fa fa-image"></i> Upload Photo <span class="required-star">*</span></label>          <div class="file-drop-zone" id="dropZone">
+            <input type="file" name="image" id="imageInput" accept="image/*" class="file-input"/>
+            <div class="file-drop-inner" id="dropInner">
+              <i class="fa fa-cloud-upload-alt file-drop-icon"></i>
+              <p>Drag &amp; drop an image here, or <span class="file-browse">browse</span></p>
+              <small>JPG, PNG, GIF, WEBP – max 5 MB</small>
+            </div>
+            <div class="file-preview" id="filePreview" style="display:none">
+              <img id="previewImg" src="" alt="preview"/>
+              <button type="button" class="remove-img" id="removeImg"><i class="fa fa-times"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+            <i class="fa fa-paper-plane"></i> Submit Report
+          </button>
+          <a href="/my-complaints" class="btn btn-ghost">Cancel</a>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const ta = document.querySelector('textarea[name="description"]');
+  const cc = document.getElementById('charCount');
+  ta.addEventListener('input', () => {
+    cc.textContent = ta.value.length;
+    cc.style.color = ta.value.length < 10 ? 'var(--danger)' : 'var(--text-muted)';
+  });
+
+  const fileInput   = document.getElementById('imageInput');
+  const dropZone    = document.getElementById('dropZone');
+  const dropInner   = document.getElementById('dropInner');
+  const filePreview = document.getElementById('filePreview');
+  const previewImg  = document.getElementById('previewImg');
+  const removeImg   = document.getElementById('removeImg');
+
+  function showPreview(file) {
+    if (!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      previewImg.src = e.target.result;
+      dropInner.style.display   = 'none';
+      filePreview.style.display = 'flex';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  fileInput.addEventListener('change', e => showPreview(e.target.files[0]));
+  removeImg.addEventListener('click', () => {
+    fileInput.value = '';
+    previewImg.src  = '';
+    dropInner.style.display   = 'flex';
+    filePreview.style.display = 'none';
+  });
+
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file) { fileInput.files = e.dataTransfer.files; showPreview(file); }
+  });
+  dropZone.querySelector('.file-browse').addEventListener('click', () => fileInput.click());
+
+  document.getElementById('reportForm').addEventListener('submit', function(e) {
+    const location = document.getElementById('locationInput').value.trim();
+    const desc     = ta.value.trim();
+    const file     = document.getElementById('imageInput').files[0];
+    const errors   = [];
+
+    if (location.length < 5) errors.push('Location must be at least 5 characters.');
+    if (desc.length < 10)    errors.push('Description must be at least 10 characters.');
+    if (!file)               errors.push('Please upload a photo of the waste issue.');
+
+    if (errors.length > 0) {
+      e.preventDefault();
+      let box = document.getElementById('formErrors');
+      if (!box) {
+        box = document.createElement('div');
+        box.id = 'formErrors';
+        box.className = 'alert alert-error';
+        document.getElementById('reportForm').prepend(box);
+      }
+      box.innerHTML = errors.map(err =>
+        `<div><i class="fa fa-exclamation-circle"></i> ${err}</div>`
+      ).join('');
+      box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    const btn = document.getElementById('submitBtn');
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Submitting…';
+    btn.disabled = true;
+  });
+</script>
+{% endblock %}

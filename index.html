@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+{% block title %}EcoSnap – Snap Waste. Clean Tomorrow.{% endblock %}
+
+{% block content %}
+
+<!-- ══════ HERO ══════ -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content" data-aos>
+    <span class="hero-badge">🌿 Smart Waste Management</span>
+    <h1 class="hero-title">
+      Snap Waste.<br>
+      <span class="hero-accent">Clean Tomorrow.</span>
+    </h1>
+    <p class="hero-sub">
+      Report garbage issues instantly. Track resolutions in real-time.
+      Together, let's build cleaner, healthier communities.
+    </p>
+    <div class="hero-cta">
+      <a href="/report" class="btn btn-primary btn-lg">
+        <i class="fa fa-camera"></i> Report an Issue
+      </a>
+      <a href="/dashboard" class="btn btn-ghost btn-lg">
+        View Dashboard <i class="fa fa-arrow-right"></i>
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div class="hstat"><span class="hstat-num" id="hStat1">0</span><span class="hstat-lbl">Reports Filed</span></div>
+      <div class="hstat-div"></div>
+      <div class="hstat"><span class="hstat-num" id="hStat2">0</span><span class="hstat-lbl">Issues Resolved</span></div>
+      <div class="hstat-div"></div>
+      <div class="hstat"><span class="hstat-num" id="hStat3">0</span><span class="hstat-lbl">Cities Covered</span></div>
+    </div>
+  </div>
+  <div class="hero-scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ══════ HOW IT WORKS ══════ -->
+<section class="section how-it-works" id="how">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Simple Process</span>
+      <h2>How EcoSnap Works</h2>
+      <p>Three easy steps to make your neighborhood cleaner</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-icon">📸</div>
+        <h3>Snap &amp; Report</h3>
+        <p>Photograph the waste issue and submit it with location details through our easy form.</p>
+      </div>
+      <div class="step-connector"><i class="fa fa-arrow-right"></i></div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-icon">🔍</div>
+        <h3>We Review</h3>
+        <p>Our admin team reviews each complaint and assigns it to the responsible authority.</p>
+      </div>
+      <div class="step-connector"><i class="fa fa-arrow-right"></i></div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-icon">✅</div>
+        <h3>Issue Resolved</h3>
+        <p>Track status updates in real-time until your reported issue is fully resolved.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ SERVICES ══════ -->
+<section class="section services" id="services">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">What We Offer</span>
+      <h2>Our Services</h2>
+      <p>Comprehensive tools to manage waste reporting end-to-end</p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-icon-wrap" style="--c:#22c55e">
+          <i class="fa fa-trash-alt"></i>
+        </div>
+        <h3>Waste Reporting</h3>
+        <p>Instantly report illegal dumps, overflowing bins, or littered areas with photo evidence and GPS location.</p>
+        <a href="/report" class="service-link">Report Now <i class="fa fa-arrow-right"></i></a>
+      </div>
+      <div class="service-card service-card--featured">
+        <div class="service-icon-wrap" style="--c:#fff">
+          <i class="fa fa-chart-bar"></i>
+        </div>
+        <h3>Live Analytics</h3>
+        <p>Monitor complaint volumes, resolution rates, and city-wide trends via our real-time analytics dashboard.</p>
+        <a href="/dashboard" class="service-link">View Stats <i class="fa fa-arrow-right"></i></a>
+      </div>
+      <div class="service-card">
+        <div class="service-icon-wrap" style="--c:#22c55e">
+          <i class="fa fa-bell"></i>
+        </div>
+        <h3>Status Tracking</h3>
+        <p>Receive status updates as your complaint moves from pending → in progress → resolved.</p>
+        <a href="/my-complaints" class="service-link">My Reports <i class="fa fa-arrow-right"></i></a>
+      </div>
+      <div class="service-card">
+        <div class="service-icon-wrap" style="--c:#22c55e">
+          <i class="fa fa-shield-alt"></i>
+        </div>
+        <h3>Admin Control</h3>
+        <p>Dedicated admin dashboard to manage, prioritize and resolve complaints efficiently.</p>
+        <a href="/admin" class="service-link">Admin Panel <i class="fa fa-arrow-right"></i></a>
+      </div>
+      <div class="service-card">
+        <div class="service-icon-wrap" style="--c:#22c55e">
+          <i class="fa fa-users"></i>
+        </div>
+        <h3>Community Power</h3>
+        <p>Every report contributes to a cleaner environment. Track your personal impact on the community.</p>
+        <a href="/register" class="service-link">Join Us <i class="fa fa-arrow-right"></i></a>
+      </div>
+      <div class="service-card">
+        <div class="service-icon-wrap" style="--c:#22c55e">
+          <i class="fa fa-recycle"></i>
+        </div>
+        <h3>Eco Education</h3>
+        <p>Access tips, guides and resources on sustainable waste management and recycling practices.</p>
+        <a href="#" class="service-link">Learn More <i class="fa fa-arrow-right"></i></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ ABOUT ══════ -->
+<section class="section about" id="about">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-visual">
+        <div class="about-img-frame">
+          <div class="about-img-inner">
+            <div class="about-eco-art">
+              <div class="eco-circle ec1"></div>
+              <div class="eco-circle ec2"></div>
+              <div class="eco-circle ec3"></div>
+              <div class="eco-center-icon">🌍</div>
+            </div>
+          </div>
+        </div>
+        <div class="about-badge-float">
+          <span class="abf-num">98%</span>
+          <span class="abf-lbl">Resolution Rate</span>
+        </div>
+      </div>
+      <div class="about-content">
+        <span class="section-tag">About EcoSnap</span>
+        <h2>Citizen-Powered<br>Environmental Action</h2>
+        <p>EcoSnap was built on the belief that every citizen deserves a clean, safe environment — and that technology can bridge the gap between communities and local authorities.</p>
+        <p>Our platform makes it radically easy to document, report, and track waste issues. From illegal dumping to overflowing bins, no problem is too small to fix.</p>
+        <div class="about-feats">
+          <div class="af-item"><i class="fa fa-check-circle"></i> Real-time complaint tracking</div>
+          <div class="af-item"><i class="fa fa-check-circle"></i> Photo evidence upload</div>
+          <div class="af-item"><i class="fa fa-check-circle"></i> Multi-status workflow</div>
+          <div class="af-item"><i class="fa fa-check-circle"></i> Analytics &amp; reporting</div>
+        </div>
+        <a href="/register" class="btn btn-primary">Join the Movement</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ CTA BANNER ══════ -->
+<section class="cta-banner">
+  <div class="cta-glow"></div>
+  <div class="container cta-inner">
+    <h2>Ready to make a difference?</h2>
+    <p>Join thousands of eco-warriors already using EcoSnap to clean up their communities.</p>
+    <div class="cta-btns">
+      <a href="/register" class="btn btn-white">Create Free Account</a>
+      <a href="/report" class="btn btn-outline-white">Report Now</a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // ── Animated hero counters ──────────────────
+  function animateCount(el, target, duration = 1800) {
+    let start = 0;
+    const step = target / (duration / 16);
+    const timer = setInterval(() => {
+      start = Math.min(start + step, target);
+      el.textContent = Math.floor(start).toLocaleString();
+      if (start >= target) clearInterval(timer);
+    }, 16);
+  }
+
+  // Fetch real stats then animate
+  fetch('/api/dashboard')
+    .then(r => r.json())
+    .then(d => {
+      animateCount(document.getElementById('hStat1'), d.total || 248);
+      animateCount(document.getElementById('hStat2'), d.resolved || 190);
+      animateCount(document.getElementById('hStat3'), 12);
+    })
+    .catch(() => {
+      animateCount(document.getElementById('hStat1'), 248);
+      animateCount(document.getElementById('hStat2'), 190);
+      animateCount(document.getElementById('hStat3'), 12);
+    });
+</script>
+{% endblock %}

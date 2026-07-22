@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% block title %}My Reports – EcoSnap{% endblock %}
+
+{% block content %}
+<section class="page-hero page-hero--sm">
+  <div class="page-hero-overlay"></div>
+  <div class="container page-hero-content">
+    <h1>My Reports</h1>
+    <p>Track all your submitted waste complaints</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    {% if submitted %}
+      <div class="alert alert-success alert-anim">
+        <i class="fa fa-check-circle"></i>
+        Your report was submitted successfully! We'll get on it soon.
+      </div>
+    {% endif %}
+
+    <div class="page-toolbar">
+      <h2>Your Submissions <span class="count-badge">{{ complaints|length }}</span></h2>
+      <a href="/report" class="btn btn-primary">
+        <i class="fa fa-plus"></i> New Report
+      </a>
+    </div>
+
+    {% if complaints %}
+      <div class="complaints-grid">
+        {% for c in complaints %}
+        <div class="complaint-card" id="card-{{ c.id }}" data-status="{{ c.status.value }}">
+          {% if c.image_url %}
+            <div class="complaint-img-wrap">
+              <img src="{{ c.image_url }}" alt="Waste photo" class="complaint-img" loading="lazy"/>
+            </div>
+          {% else %}
+            <div class="complaint-img-placeholder">
+              <i class="fa fa-image"></i>
+            </div>
+          {% endif %}
+
+          <div class="complaint-body">
+            <div class="complaint-meta">
+              <span class="status-badge status-{{ c.status.value }}">
+                {% if c.status.value == 'pending' %}⏳ Pending
+                {% elif c.status.value == 'in_progress' %}🔧 In Progress
+                {% else %}✅ Resolved
+                {% endif %}
+              </span>
+              <span class="complaint-date">{{ c.created_at.strftime('%d %b %Y') }}</span>
+            </div>
+            <h3 class="complaint-loc"><i class="fa fa-map-marker-alt"></i> {{ c.location }}</h3>
+            <p class="complaint-desc">{{ c.description[:120] }}{% if c.description|length > 120 %}…{% endif %}</p>
+            <div class="complaint-footer">
+              <div class="complaint-id">Report #{{ c.id }}</div>
+              {% if c.status.value == 'pending' %}
+                <button class="btn-delete" onclick="deleteComplaint({{ c.id }}, 'user')">
+                  <i class="fa fa-trash"></i> Delete
+                </button>
+              {% else %}
+                <span class="no-delete-hint">Cannot delete — already {{ c.status.value.replace('_', ' ') }}</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h3>No reports yet</h3>
+        <p>You haven't reported any waste issues. Be the change — report your first issue!</p>
+        <a href="/report" class="btn btn-primary">Report an Issue</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" id="deleteModal" style="display:none">
+  <div class="modal-box">
+    <div class="modal-icon">🗑️</div>
+    <h3>Delete Report?</h3>
+    <p>Are you sure you want to delete this report? This action <strong>cannot be undone</strong>.</p>
+    <div class="modal-actions">
+      <button class="btn btn-danger" id="confirmDeleteBtn">Yes, Delete</button>
+      <button class="btn btn-ghost-dark" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  let pendingDeleteId = null;
+
+  function deleteComplaint(id, role) {
+    pendingDeleteId = id;
+    document.getElementById('deleteModal').style.display = 'flex';
+  }
+
+  function closeModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+    pendingDeleteId = null;
+  }
+
+  document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
+    if (!pendingDeleteId) return;
+
+    try {
+      const res = await fetch(`/delete-complaint/${pendingDeleteId}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        // Remove card from UI
+        const card = document.getElementById(`card-${pendingDeleteId}`);
+        card.style.animation = 'fadeOut .3s ease forwards';
+        setTimeout(() => {
+          card.remove();
+          updateCount();
+        }, 300);
+        showToast('✅ Report deleted successfully!', 'success');
+      } else {
+        showToast('❌ Could not delete. Try again.', 'error');
+      }
+    } catch (e) {
+      showToast('❌ Something went wrong.', 'error');
+    }
+
+    closeModal();
+  });
+
+  function updateCount() {
+    const remaining = document.querySelectorAll('.complaint-card').length;
+    const badge = document.querySelector('.count-badge');
+    if (badge) badge.textContent = remaining;
+
+    if (remaining === 0) {
+      document.querySelector('.complaints-grid').innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1">
+          <div class="empty-icon">📋</div>
+          <h3>No reports yet</h3>
+          <p>You haven't reported any waste issues.</p>
+          <a href="/report" class="btn btn-primary">Report an Issue</a>
+        </div>`;
+    }
+  }
+
+  function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast toast-${type} toast-show`;
+    setTimeout(() => t.className = 'toast', 3000);
+  }
+
+  // Close modal on overlay click
+  document.getElementById('deleteModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+</script>
+{% endblock %}
