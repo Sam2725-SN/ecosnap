@@ -79,4 +79,4 @@ Homepage, Login, Dashboard, Admin Panel
 
 ## 👨‍💻 Built With
 
-FastAPI + SQLAlchemy + Jinja2 + Chart.js
+FastAPI + SQLAlchemy + Jinja2 + Chart.js  
