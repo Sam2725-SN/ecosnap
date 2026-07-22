@@ -41,12 +41,6 @@ python run.py
 ### 5. Open browser
 http://localhost:8000
 
-## 🔑 Default Login
-
-| Role  | Email                | Password |
-|-------|----------------------|----------|
-| Admin | admin@ecosnap.com    | admin123 |
-
 ## 📁 Project Structure
 
 ecosnap/
